@@ -1,0 +1,33 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Restaurante app",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "export": "next export"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Emmanuelgg/restaurante.git"
+  },
+  "author": "Emmanuel García Gutiérrez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Emmanuelgg/restaurante/issues"
+  },
+  "homepage": "https://github.com/Emmanuelgg/restaurante#readme",
+  "dependencies": {
+    "@zeit/next-css": "^1.0.1",
+    "axios": "^0.19.0",
+    "next": "^8.1.0",
+    "react": "^16.10.2",
+    "react-data-table-component": "^1.7.4",
+    "react-date-picker": "^7.8.2",
+    "react-dom": "^16.10.2",
+    "styled-components": "^4.4.0"
+  },
+  "devDependencies": {}
+}

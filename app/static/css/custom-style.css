@@ -1,0 +1,109 @@
+
+select option {
+    background: #121618 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.btn-action {
+    margin: 2px;
+}
+
+span.icon {
+    color: #000;
+}
+
+.modal-header, .modal-footer {
+    background: #121618 !important;
+    color: #fac564 !important;
+}
+
+.title-brackground-white {
+    color: #121618 !important
+}
+
+.modal-title {
+    color: #fac564 !important;
+}
+
+.table .thead-dark th {
+    color: #fac564 !important;
+}
+
+.rdt_TableHead .rdt_TableCol, .rdt_TableFooter, .rdt_TableFooter * {
+    background: #121618 !important;
+    color: #fac564 !important;
+
+}
+.rdt_TableRow {
+    background: #fff !important;
+}
+
+.rdt_TableFooter svg {
+    background: #121618 !important;
+    color: #fac564 !important;
+    fill: #fac564 !important;
+
+}
+
+.modal-body {
+    background: #FFFEFB !important;
+}
+
+.img-table {
+    color: #fac564 !important;
+    width: 60%;
+    height: auto;
+}
+.img-product {
+    width: 150px;
+    height: 150px;
+}
+.span-table-number {
+    font-size: 20pt;
+    color: #fac564 !important;
+}
+
+.span-table-name {
+    font-size: 12pt;
+    color: #808080 !important;
+}
+
+.modal-xl {
+    width: 90% !important;
+    max-width: 90% !important;
+}
+
+.product-grid {
+    background: #121618 !important;
+    overflow: scroll;
+    height: 550px;
+
+}
+
+.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
+    background: #fac564 !important;fac564
+    color: #121618 !important;
+}
+
+.container-grid {
+    padding: 10px;
+}
+
+.btn-pay {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.title-total-sales{
+    color: #fac564 !important;
+}
+
+/* .modal-title {
+    color: rgba(255, 255, 255, 0.9)
+} */
+/* .btn-action-edit {
+    background-color: #17a2b8 !important;
+}
+.btn-action-delete {
+    background-color: #17a2b8 !important;
+} */

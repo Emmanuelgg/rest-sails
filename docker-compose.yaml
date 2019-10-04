@@ -1,0 +1,70 @@
+version: "3.1"
+
+networks:
+    app-tier:
+        driver: bridge
+
+services:
+  app:
+    container_name: react
+    image: node:lts-stretch-slim
+    ports:
+      - "3010:3010"
+    working_dir: /app
+    volumes:
+      - ./app:/app
+    environment:
+        NODE_ENV: development
+        PORT: 3010
+    command: >
+        bash -c "pwd
+        && npm run dev -- -p 3010"
+
+  api:
+    container_name: sails
+    image: node:lts-stretch-slim
+    networks:
+        - app-tier
+    ports:
+      - "1337:1337"
+    working_dir: /api
+    volumes:
+      - ./:/api
+    depends_on:
+      - mariadb_rest
+    environment:
+        DB_HOSTNAME: mariadb_rest
+        NODE_ENV: development
+        PORT: 1337
+    command: >
+        bash -c "pwd
+        && node app"
+
+  mariadb_rest:
+    container_name: mariadb_rest
+    networks:
+        - app-tier
+    image: mariadb:10.4.7
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: rest_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./rest_db:/var/lib/mysql
+
+  phpmyadmin:
+    container_name: phpmyadmin_bd
+    image: phpmyadmin/phpmyadmin:4.7
+    networks:
+        - app-tier
+    environment:
+      PMA_HOST: mariadb_rest
+      PMA_PORT: 3306
+    ports:
+      - "4000:80"
+    depends_on:
+      - mariadb_rest
+    volumes:
+      - ./conf/conf.php:/etc/phpmyadmin/config.user.inc.php
