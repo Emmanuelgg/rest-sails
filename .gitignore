@@ -1,4 +1,4 @@
-rest_db/*
+rest_db/
 !node_modules/.gitkeep
 node_modules/*
 conf/
