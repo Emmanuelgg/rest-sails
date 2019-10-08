@@ -4,6 +4,8 @@ import NavBar from "../components/NavBar"
 import ProductForm from "../components/ProductForm"
 import DiningTableForm from "../components/DiningTableForm"
 import Sales from "../components/Sales"
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
 
 function Managment() {
   return (
@@ -35,6 +37,7 @@ function Managment() {
                 <Sales />
             </div>
         </div>
+        <ReactNotification/>
     </div>
   )
 }

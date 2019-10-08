@@ -2,14 +2,16 @@ import React, {Component} from "react"
 import ENV from "../config.js"
 import ProductList from "./ProductList"
 import * as FileUpload from "../utils/FileUpload"
+import axios from 'axios'
+import showNotification from './Notification'
 
 class ProductForm extends Component {
     constructor(props){
         super(props)
         this.state = {
             file: null,
-            file_url: `${ENV.IMAGE_ROUTE}not-found.png`,
-            file_name: "Sin imagen",
+            fileUrl: `${ENV.IMAGE_ROUTE}not-found.png`,
+            fileName: "Sin imagen",
             units: [],
             categories: [],
             code: "",
@@ -34,32 +36,30 @@ class ProductForm extends Component {
     }
 
     componentDidMount() {
-        this.getUnit()
-        this.getCategory()
+        this.getUnitsAndCategories()
     }
 
     getProductToEdit(product) {
         this.resetProductForm()
-        let file_url = `${ENV.IMAGE_ROUTE}not-found.png`
-        let file_name = "Sin imagen"
-        if (product.image_url != "" && product.image_url != null) {
-            file_url = ENV.API_FILES_ROUTE+product.image_url
-            file_name = product.image_url
+        let fileUrl = `${ENV.IMAGE_ROUTE}not-found.png`
+        let fileName = "Sin imagen"
+        if (product.imageUrl != "" && product.imageUrl != null && product.imageUrl != "Sin imagen") {
+            fileUrl = ENV.API_FILES_ROUTE+product.imageUrl
+            fileName = product.imageUrl
         }
-
         this.setState({
-            idProduct: product.id_product,
+            idProduct: product.id,
             code:product.code,
             name: product.name,
-            idCategory: product.id_category,
-            quantityByPackage: product.quantity_package,
-            idUnit: product.id_unit,
+            idCategory: product.category.id,
+            quantityByPackage: product.quantityPackage,
+            idUnit: product.unit.id,
             price: product.price,
             file: null,
-            file_url: file_url,
-            file_name: file_name
+            fileUrl: fileUrl,
+            fileName: fileName
         })
-        console.log(product)
+        showNotification("Exito", "Producto obtenido correctamente para editar")
     }
 
     resetProductForm() {
@@ -72,67 +72,64 @@ class ProductForm extends Component {
             idUnit: "0",
             price: "",
             file: null,
-            file_url: `${ENV.IMAGE_ROUTE}not-found.png`,
-            file_name: "Sin imagen"
+            fileUrl: `${ENV.IMAGE_ROUTE}not-found.png`,
+            fileName: "Sin imagen"
         })
     }
 
-    getUnit() {
-        fetch(`${ENV.API_ROUTE}get`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                table: "units"
-            })
-        })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
-                let units = res.data.map(item => {
-                    return(
-                        <option key={"unit_"+item.id_unit} value={item.id_unit}>{item.name}</option>
-                    )
-                })
-                this.setState({units:units})
-        })
-    }
+    getUnitsAndCategories() {
+        let self = this
+        axios.get(`${ENV.API_ROUTE}units`)
+        .then(function (res) {
+            // handle success
+            res = res.data
+            if (!res.success)
+                return res.message
 
-    getCategory() {
-        fetch(`${ENV.API_ROUTE}get`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                table: "categories"
+            let units = res.data.map(item => {
+                return(
+                    <option key={"unit_"+item.id} value={item.id}>{item.name}</option>
+                )
             })
+            self.setState({units:units})
         })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
-                let categories = res.data.map(item => {
-                    return(
-                        <option key={"category_"+item.id_category} value={item.id_category}>{item.name}</option>
-                    )
-                })
-                this.setState({categories:categories})
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+
+        axios.get(`${ENV.API_ROUTE}categories`)
+        .then(function (res) {
+            // handle success
+            res = res.data
+            if (!res.success)
+                return res.message
+
+            let categories = res.data.map(item => {
+                return(
+                    <option key={"category_"+item.id} value={item.id}>{item.name}</option>
+                )
+            })
+            self.setState({categories:categories})
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
         })
     }
 
     handleChangeFile(event) {
         event.preventDefault()
         this.setState({
-            file_url: URL.createObjectURL(event.target.files[0]),
+            fileUrl: URL.createObjectURL(event.target.files[0]),
             file: event.target.files[0],
-            file_name: event.target.files[0].name
+            fileName: event.target.files[0].name
         })
     }
 
@@ -148,26 +145,39 @@ class ProductForm extends Component {
 
     handlePostRequest(event) {
         event.preventDefault()
-        fetch(`${ENV.API_ROUTE}add`, {
-            method: "post",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: this.state.idProduct,
-                table: "products",
-                columns: `code, name, id_category, quantity_package, id_unit, price, image_url`,
-                values: `${this.state.code},${this.state.name},${this.state.idCategory},${this.state.quantityByPackage},${this.state.idUnit},${this.state.price},${this.state.file_name}`
-            })
+        let self = this
+        axios.post(`${ENV.API_ROUTE}product/add`,
+            {
+                id: self.state.idProduct,
+                code: self.state.code,
+                name: self.state.name, 
+                category: self.state.idCategory,
+                quantityPackage: self.state.quantityByPackage,
+                unit: self.state.idUnit,
+                price: self.state.price,
+                imageUrl: self.state.fileName,
+                status: 1
+            }
+        )
+        .then(function (res) {
+            res = res.data
+            if (!res.success) {
+                showNotification("Error", "El producto no se ha podido agregar revisa por favor el formulario", "danger")
+                return res.message
+            }
+            showNotification("Exito", "Producto agregado correctamente")
+            // let file = this.state.file
+            // let fileName = this.state.fileName
+            // if (file != null)
+            //     FileUpload.uploadDocumentRequest(file)
+            self.resetProductForm()
         })
-        .then(response => {return response.json()})
-        .then(res => {
-            let file = this.state.file
-            let file_name = this.state.file_name
-            if (file != null)
-                FileUpload.uploadDocumentRequest(file)
-            this.resetProductForm()
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
         })
     }
 
@@ -208,14 +218,14 @@ class ProductForm extends Component {
                     <br/>
                     <div className="row">
                         <div className="col-12 text-center">
-                            <img style={{ width: "200px", height:"200px" }} src={this.state.file_url} className="rounded" alt="product images"/>
+                            <img style={{ width: "200px", height:"200px" }} src={this.state.fileUrl} className="rounded" alt="product images"/>
                         </div>
                     </div>
                     <br/>
                     <div className="row justify-content-md-center">
                         <div className="col-sd-12 col-md-6 text-center">
                             <div className="form-group">
-                                <label htmlFor="exampleFormControlFile1">{this.state.file_name} </label>
+                                <label htmlFor="exampleFormControlFile1">{this.state.fileName} </label>
                                 <input type="file" className="form-control-file btn btn-primary py-3 px-5" name="product_image" onChange={this.handleChangeFile}/>
                             </div>
                         </div>

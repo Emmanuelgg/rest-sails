@@ -2,6 +2,8 @@ import React, {Component} from "react"
 import DataTable from 'react-data-table-component';
 
 import ENV from "../config.js"
+import axios from 'axios'
+import showNotification from './Notification'
 
 
 class ProductList extends Component {
@@ -53,80 +55,73 @@ class ProductList extends Component {
     }
 
     handleEventClickEditProduct(value) {
-        fetch(`${ENV.API_ROUTE}get`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                table: "products",
-                where: `id_product = ${value}`
-            })
-        })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
-            let data = res.data.map(item => {
-                return(
-                    item
-                )
-            })
-            this.props.callbackFromParent(data[0]);
+        let self = this 
+        axios.get(`${ENV.API_ROUTE}product/${value}`)
+        .then(function (res) {
+            // handle success
+            res = res.data
+            if (!res.success)
+                return res.message
+            self.props.callbackFromParent(res.data);
             $('#modalProductList').modal('hide')
-
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
         })
     }
     handleEventClickDeleteProduct(value) {
-        fetch(`${ENV.API_ROUTE}logical/delete`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                table: "products",
-                id: `${value}`
-            })
+        let self = this 
+        axios.delete(`${ENV.API_ROUTE}product/delete/${value}`)
+        .then(function (res) {
+            // handle success
+            res = res.data
+            
+            if (!res.success) {
+                showNotification("Error", "El producto no se ha podido eliminar", "danger")
+                return res.message
+            }
+            showNotification("Exito", "El producto se ha eliminado correctamente")
+            self.getProductList()
         })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
-            this.getProductList(this)
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
         })
     }
 
     getProductList(event) {
         //event.preventDefault()
-        fetch(`${ENV.API_ROUTE}get`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                table: "products",
-                where: "status = 1"
-            })
-        })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
-                let productList = res.data.map(item => {
-                    return({
-                        name:item.name,
-                        category:item.quantity_package,
-                        price:item.price,
-                        actions: item.id_product
-                    })
+        let self = this 
+        axios.get(`${ENV.API_ROUTE}products/`)
+        .then(function (res) {
+            // handle success
+            res = res.data
+            if (!res.success)
+                return res.message
+
+            let productList = res.data.map(item => {
+                return({
+                    name:item.name,
+                    category:item.category.name,
+                    price:item.price,
+                    actions: item.id
                 })
-                this.setState({productList: productList})
+            })
+            self.setState({productList: productList})
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
         })
     }
 

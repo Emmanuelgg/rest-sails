@@ -10,7 +10,18 @@
 
 module.exports.routes = {
 
+  // Products
   'GET /api/products':    'product/ProductManageController.get',
+  'GET /api/product/:id':    'product/ProductManageController.getOne',
+  'GET /api/units/':    'product/ProductManageController.units',
+  'GET /api/categories/':    'product/ProductManageController.categories',
+  'POST /api/product/add':    'product/ProductManageController.add',
+  'DELETE /api/product/delete/:id':    'product/ProductManageController.delete',
+
+  // DiningTables
   'GET /api/diningTables':    'diningTable/DiningTable.get',
+
+  // FoodOrders
   'GET /api/foodOrder/:idDiningTable':    'foodOrder/FoodOrder.get',
+  
 };
