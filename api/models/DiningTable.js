@@ -23,7 +23,7 @@ module.exports = {
   	},
 	foodOrders: {
       collection: 'foodOrder',
-      via: 'idDiningTable'
+      via: 'diningTable'
     },
   },
 

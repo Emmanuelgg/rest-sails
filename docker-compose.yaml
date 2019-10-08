@@ -38,7 +38,8 @@ services:
         PORT: 1337
     command: >
         bash -c "pwd
-        && node app"
+        && npm install nodemon -g
+        && nodemon app"
 
   mariadb_rest:
     container_name: mariadb_rest

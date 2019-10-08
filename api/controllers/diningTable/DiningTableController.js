@@ -7,7 +7,7 @@
 
 module.exports = {
     get: (req, res) => {
-        DiningTable.find()
+        DiningTable.find({'status': 1})
           .then((diningTable) => {
             if (!diningTable || diningTable.length == 0) {
                 return res.send({

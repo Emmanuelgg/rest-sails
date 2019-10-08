@@ -19,12 +19,12 @@ module.exports = {
     },
     foodOrderDescriptions: {
       collection: 'foodOrderDescription',
-      via: 'idFoodOrder'
+      via: 'foodOrder'
     },
-	idFoodOrderType: {
+	foodOrderType: {
       model: 'foodOrderType'
     },
-	idDiningTable: {
+	diningTable: {
       model: 'diningTable'
     },
 

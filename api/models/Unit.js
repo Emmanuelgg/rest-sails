@@ -32,7 +32,7 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
 	units: {
       collection: 'product',
-      via: 'idUnit'
+      via: 'unit'
     },
 
   },

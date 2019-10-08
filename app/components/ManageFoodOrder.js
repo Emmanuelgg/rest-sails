@@ -1,8 +1,11 @@
 import React, {Component} from "react"
-import DataTable from 'react-data-table-component';
+import DataTable from 'react-data-table-component'
 import ENV from "../config.js"
+import axios from 'axios'
+import showNotification from './Notification'
 
 class ManageFoodOrder extends Component {
+    
     constructor(props){
         super(props)
         this.state = {
@@ -52,11 +55,11 @@ class ManageFoodOrder extends Component {
         }
         this.getProductGrid = this.getProductGrid.bind(this)
         this.getDiningTableOrder = this.getDiningTableOrder.bind(this)
-        this.getFoodOrderDescription = this.getFoodOrderDescription.bind(this)
+        // this.getFoodOrderDescription = this.getFoodOrderDescription.bind(this)
         this.confirmCloseFoodOrder = this.confirmCloseFoodOrder.bind(this)
         this.closeFoodOrder = this.closeFoodOrder.bind(this)
     }
-
+    
     componentDidMount() {
 
     }
@@ -112,63 +115,40 @@ class ManageFoodOrder extends Component {
         })
     }
 
-    getFoodOrderDescription() {
-        this.state.foodOrder.total = 0
-        fetch(`${ENV.API_ROUTE}get`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                table: "food_order_descriptions",
-                columns: "id_product, product_name, SUM(quantity) quantity, price, SUM(total) total",
-                where: `id_food_order = ${this.state.foodOrder.id_food_order}`,
-                groupBy: "id_product, product_name, price"
-            })
-        })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
-            let foodOrderDesciption = res.data.map(
-                item => {
-                    this.state.foodOrder.total += item.total
-                    return({
-                        name: item.product_name,
-                        quantity: item.quantity,
-                        unit: item.price,
-                        import: item.total,
-                        actions: {idFoodOrder:this.state.foodOrder.id_food_order, idProduct: item.id_product}
-                    })
-                }
-            )
-            this.setState({foodOrderDesciption:foodOrderDesciption})
-        })
-    }
-
     getDiningTableOrder(idDiningTable) {
         //event.preventDefault()
         this.resetFoodOrder()
-        fetch(`${ENV.API_ROUTE}get/foodOrder`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: idDiningTable
-            })
+        let self = this
+        axios.get(`${ENV.API_ROUTE}foodOrder/${idDiningTable}`)
+        .then(function (res) {
+            // handle success
+            res = res.data
+            if (!res.success)
+                return res.message
+
+            let foodOrder = res.data
+            let foodOrderDesciption = foodOrder.foodOrderDescription.map(
+                item => {
+                    self.state.foodOrder.total += item.total
+                    return({
+                        name: item.productName,
+                        quantity: item.quantity,
+                        unit: item.price,
+                        import: item.total,
+                        actions: {idFoodOrder:self.state.foodOrder.id, idProduct: item.product.id}
+                    })
+                }
+            )
+            self.setState({foodOrder:foodOrder})
+            self.setState({foodOrderDesciption:foodOrderDesciption})
+                
         })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
-            let foodOrder = res.data.food_order[0]
-            this.setState({foodOrder:foodOrder})
-            this.getFoodOrderDescription()
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
         })
     }
 
@@ -194,34 +174,35 @@ class ManageFoodOrder extends Component {
     }
 
     getProductGrid() {
-        //event.preventDefault()
-        fetch(`${ENV.API_ROUTE}get`, {
-            method: "post",
-            cors: "cors",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                table: "product",
-                where: "status = 1"
-            })
-        })
-        .then(response => {return response.json()})
-        .then(res => {
-            if (res.status != 200)
-                return "Error"
+        let self = this
+        axios.get(`${ENV.API_ROUTE}products`)
+        .then(function (res) {
+            // handle success
+            res = res.data
+            
+            if (!res.success) {
+                showNotification("Sin productos", "No se encontraron productos registrados", "danger")
+                return res.message
+            }
                 let productGrid = res.data.map(item => {
                     return(
-                        <div key={"product_"+item.id_product} className="col-12 col-sm-6 col-md-4 text-center container-grid" onClick={this.addProductToFoodOrder.bind(this, item.id_product)}>
+                        <div key={"product_"+item.id_product} className="col-12 col-sm-6 col-md-4 text-center container-grid" onClick={self.addProductToFoodOrder.bind(self, item.id_product)}>
                             <img src={ENV.API_FILES_ROUTE+item.image_url} className="rounded img-product"/>
                             <br/>
                             <span className="span-table-number"><b>{item.name}</b></span>
                         </div>
                     )
                 })
-                this.setState({productGrid: productGrid})
+                self.setState({productGrid: productGrid})
                 $("#modalManageFoodOrder").modal("show")
+                
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
         })
     }
 
@@ -254,6 +235,8 @@ class ManageFoodOrder extends Component {
             $("#modalManageFoodOrder").modal("hide")
         })
     }
+
+    
 
     render() {
         return (

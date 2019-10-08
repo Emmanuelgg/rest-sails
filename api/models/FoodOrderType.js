@@ -27,7 +27,7 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
 	foodOrders: {
       collection: 'foodOrder',
-      via: 'idFoodOrderType'
+      via: 'foodOrderType'
     },
   },
 

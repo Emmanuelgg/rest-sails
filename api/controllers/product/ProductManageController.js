@@ -7,7 +7,7 @@
 
 module.exports = {
   get: (req, res) => {
-    Product.find()
+    Product.find({'status': 1})
       .then((products) => {
         if (!products || products.length == 0) {
             return res.send({

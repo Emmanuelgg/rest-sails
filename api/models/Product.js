@@ -45,15 +45,15 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-    idCategory: {
+    category: {
       model: 'category'
     },
-    idUnit: {
+    unit: {
       model: 'unit'
     },
     foodOrderDescriptions: {
       collection: 'foodOrderDescription',
-      via: 'idProduct'
+      via: 'product'
     },
   },
 

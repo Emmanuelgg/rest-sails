@@ -14,7 +14,7 @@ class TableGrid extends Component {
     }
 
     componentDidMount() {
-        this.getTableGrid()
+        this.getTableGrid(this)
     }
 
     triggerGetManageFoodOrder(idDiningTable){
@@ -22,12 +22,27 @@ class TableGrid extends Component {
         this.refs.productGrid.getDiningTableOrder(idDiningTable)
     }
 
-    getTableGrid(event) {
-        //event.preventDefault()
+    getTableGrid = (event) => {
+        let self = this
         axios.get(`${ENV.API_ROUTE}diningTables`)
-        .then(function (response) {
+        .then(function (res) {
             // handle success
-            console.log(response);
+            res = res.data
+            if (!res.success)
+                return res.message
+                let tableGrid = res.data.map(item => {
+                    return(
+                        <div key={"table_"+item.id} className="col-6 col-md-4 text-center container-grid" onClick={self.triggerGetManageFoodOrder.bind(self, item.id)}>
+                            <img src={ENV.IMAGE_ROUTE+"table.svg"} className="img-table"/>
+                            <br/>
+                            <span className="span-table-number"><b>{item.number}</b></span>
+                            <br/>
+                            <span className="span-table-name"><b>({item.name})</b></span>
+                        </div>
+                    )
+                })
+                self.setState({tableGrid: tableGrid})
+                
         })
         .catch(function (error) {
             // handle error
@@ -36,35 +51,6 @@ class TableGrid extends Component {
         .finally(function () {
             // always executed
         });
-        // fetch(`${ENV.API_ROUTE}diningTables`, {
-        //     method: "post",
-        //     cors: "cors",
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         table: "dining_tables",
-        //         where: "status = 1"
-        //     })
-        // })
-        // .then(response => {return response.json()})
-        // .then(res => {
-        //     if (res.status != 200)
-        //         return "Error"
-        //         let tableGrid = res.data.map(item => {
-        //             return(
-        //                 <div key={"table_"+item.id_dining_table} className="col-6 col-md-4 text-center container-grid" onClick={this.triggerGetManageFoodOrder.bind(this, item.id_dining_table)}>
-        //                     <img src={ENV.IMAGE_ROUTE+"table.svg"} className="img-table"/>
-        //                     <br/>
-        //                     <span className="span-table-number"><b>{item.number}</b></span>
-        //                     <br/>
-        //                     <span className="span-table-name"><b>({item.name})</b></span>
-        //                 </div>
-        //             )
-        //         })
-        //         this.setState({tableGrid: tableGrid})
-        // })
     }
 
     render() {

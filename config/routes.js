@@ -12,4 +12,5 @@ module.exports.routes = {
 
   'GET /api/products':    'product/ProductManageController.get',
   'GET /api/diningTables':    'diningTable/DiningTable.get',
+  'GET /api/foodOrder/:idDiningTable':    'foodOrder/FoodOrder.get',
 };

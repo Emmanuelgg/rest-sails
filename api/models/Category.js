@@ -22,7 +22,7 @@ module.exports = {
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
 	categories: {
       collection: 'product',
-      via: 'idCategory'
+      via: 'category'
     },
 
   },

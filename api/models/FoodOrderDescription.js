@@ -17,7 +17,7 @@ module.exports = {
       type: 'number',
       required: true
     },
-    product_name: {
+    productName: {
       type: 'string',
       required: true
     },
@@ -33,10 +33,10 @@ module.exports = {
       type: 'number',
       required: true
     },
-    idFoodOrder: {
+    foodOrder: {
       model: 'foodOrder'
     },
-    idProduct: {
+    product: {
       model: 'product'
     },
 

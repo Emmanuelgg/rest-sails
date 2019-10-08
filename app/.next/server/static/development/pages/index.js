@@ -406,6 +406,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_data_table_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react-data-table-component */ "react-data-table-component");
 /* harmony import */ var react_data_table_component__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(react_data_table_component__WEBPACK_IMPORTED_MODULE_8__);
 /* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../config.js */ "./config.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! axios */ "axios");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var _Notification__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Notification */ "./components/Notification.js");
 
 
 
@@ -414,6 +417,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 var _jsxFileName = "/app/components/ManageFoodOrder.js";
+
+
 
 
 
@@ -457,7 +462,7 @@ function (_Component) {
           return react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 39
+              lineNumber: 42
             },
             __self: this
           }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -465,14 +470,14 @@ function (_Component) {
             onClick: _this.handleEventClickSubtractFoodOrderDescription.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this), row.actions),
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 40
+              lineNumber: 43
             },
             __self: this
           }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("span", {
             className: "icon icon-minus",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 41
+              lineNumber: 44
             },
             __self: this
           })), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -480,14 +485,14 @@ function (_Component) {
             onClick: _this.handleEventClickDeleteFoodOrderDescription.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this), row.actions),
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 43
+              lineNumber: 46
             },
             __self: this
           }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("span", {
             className: "icon icon-trash",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 44
+              lineNumber: 47
             },
             __self: this
           })));
@@ -495,8 +500,8 @@ function (_Component) {
       }]
     };
     _this.getProductGrid = _this.getProductGrid.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this));
-    _this.getDiningTableOrder = _this.getDiningTableOrder.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this));
-    _this.getFoodOrderDescription = _this.getFoodOrderDescription.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this));
+    _this.getDiningTableOrder = _this.getDiningTableOrder.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this)); // this.getFoodOrderDescription = this.getFoodOrderDescription.bind(this)
+
     _this.confirmCloseFoodOrder = _this.confirmCloseFoodOrder.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this));
     _this.closeFoodOrder = _this.closeFoodOrder.bind(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_5__["default"])(_this));
     return _this;
@@ -564,81 +569,45 @@ function (_Component) {
       });
     }
   }, {
-    key: "getFoodOrderDescription",
-    value: function getFoodOrderDescription() {
-      var _this4 = this;
-
-      this.state.foodOrder.total = 0;
-      fetch("".concat(_config_js__WEBPACK_IMPORTED_MODULE_9__["default"].API_ROUTE, "get"), {
-        method: "post",
-        cors: "cors",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: _babel_runtime_corejs2_core_js_json_stringify__WEBPACK_IMPORTED_MODULE_0___default()({
-          table: "food_order_descriptions",
-          columns: "id_product, product_name, SUM(quantity) quantity, price, SUM(total) total",
-          where: "id_food_order = ".concat(this.state.foodOrder.id_food_order),
-          groupBy: "id_product, product_name, price"
-        })
-      }).then(function (response) {
-        return response.json();
-      }).then(function (res) {
-        if (res.status != 200) return "Error";
-        var foodOrderDesciption = res.data.map(function (item) {
-          _this4.state.foodOrder.total += item.total;
+    key: "getDiningTableOrder",
+    value: function getDiningTableOrder(idDiningTable) {
+      //event.preventDefault()
+      this.resetFoodOrder();
+      var self = this;
+      axios__WEBPACK_IMPORTED_MODULE_10___default.a.get("".concat(_config_js__WEBPACK_IMPORTED_MODULE_9__["default"].API_ROUTE, "foodOrder/").concat(idDiningTable)).then(function (res) {
+        // handle success
+        res = res.data;
+        if (!res.success) return res.message;
+        var foodOrder = res.data;
+        var foodOrderDesciption = foodOrder.foodOrderDescription.map(function (item) {
+          self.state.foodOrder.total += item.total;
           return {
-            name: item.product_name,
+            name: item.productName,
             quantity: item.quantity,
             unit: item.price,
             import: item.total,
             actions: {
-              idFoodOrder: _this4.state.foodOrder.id_food_order,
-              idProduct: item.id_product
+              idFoodOrder: self.state.foodOrder.id,
+              idProduct: item.product.id
             }
           };
         });
-
-        _this4.setState({
-          foodOrderDesciption: foodOrderDesciption
-        });
-      });
-    }
-  }, {
-    key: "getDiningTableOrder",
-    value: function getDiningTableOrder(idDiningTable) {
-      var _this5 = this;
-
-      //event.preventDefault()
-      this.resetFoodOrder();
-      fetch("".concat(_config_js__WEBPACK_IMPORTED_MODULE_9__["default"].API_ROUTE, "get/foodOrder"), {
-        method: "post",
-        cors: "cors",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: _babel_runtime_corejs2_core_js_json_stringify__WEBPACK_IMPORTED_MODULE_0___default()({
-          id: idDiningTable
-        })
-      }).then(function (response) {
-        return response.json();
-      }).then(function (res) {
-        if (res.status != 200) return "Error";
-        var foodOrder = res.data.food_order[0];
-
-        _this5.setState({
+        self.setState({
           foodOrder: foodOrder
         });
-
-        _this5.getFoodOrderDescription();
+        self.setState({
+          foodOrderDesciption: foodOrderDesciption
+        });
+      }).catch(function (error) {
+        // handle error
+        console.log(error);
+      }).finally(function () {// always executed
       });
     }
   }, {
     key: "addProductToFoodOrder",
     value: function addProductToFoodOrder(id_product) {
-      var _this6 = this;
+      var _this4 = this;
 
       fetch("".concat(_config_js__WEBPACK_IMPORTED_MODULE_9__["default"].API_ROUTE, "add/foodOrder"), {
         method: "post",
@@ -656,38 +625,30 @@ function (_Component) {
       }).then(function (res) {
         if (res.status != 200) return "Error";
 
-        _this6.getFoodOrderDescription();
+        _this4.getFoodOrderDescription();
       });
     }
   }, {
     key: "getProductGrid",
     value: function getProductGrid() {
-      var _this7 = this;
+      var self = this;
+      axios__WEBPACK_IMPORTED_MODULE_10___default.a.get("".concat(_config_js__WEBPACK_IMPORTED_MODULE_9__["default"].API_ROUTE, "products")).then(function (res) {
+        // handle success
+        res = res.data;
 
-      //event.preventDefault()
-      fetch("".concat(_config_js__WEBPACK_IMPORTED_MODULE_9__["default"].API_ROUTE, "get"), {
-        method: "post",
-        cors: "cors",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: _babel_runtime_corejs2_core_js_json_stringify__WEBPACK_IMPORTED_MODULE_0___default()({
-          table: "product",
-          where: "status = 1"
-        })
-      }).then(function (response) {
-        return response.json();
-      }).then(function (res) {
-        if (res.status != 200) return "Error";
+        if (!res.success) {
+          Object(_Notification__WEBPACK_IMPORTED_MODULE_11__["default"])("Sin productos", "No se encontraron productos registrados", "danger");
+          return res.message;
+        }
+
         var productGrid = res.data.map(function (item) {
           return react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
             key: "product_" + item.id_product,
             className: "col-12 col-sm-6 col-md-4 text-center container-grid",
-            onClick: _this7.addProductToFoodOrder.bind(_this7, item.id_product),
+            onClick: self.addProductToFoodOrder.bind(self, item.id_product),
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 216
+              lineNumber: 189
             },
             __self: this
           }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("img", {
@@ -695,36 +656,38 @@ function (_Component) {
             className: "rounded img-product",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 217
+              lineNumber: 190
             },
             __self: this
           }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("br", {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 218
+              lineNumber: 191
             },
             __self: this
           }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("span", {
             className: "span-table-number",
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 219
+              lineNumber: 192
             },
             __self: this
           }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("b", {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 219
+              lineNumber: 192
             },
             __self: this
           }, item.name)));
         });
-
-        _this7.setState({
+        self.setState({
           productGrid: productGrid
         });
-
         $("#modalManageFoodOrder").modal("show");
+      }).catch(function (error) {
+        // handle error
+        console.log(error);
+      }).finally(function () {// always executed
       });
     }
   }, {
@@ -735,7 +698,7 @@ function (_Component) {
   }, {
     key: "closeFoodOrder",
     value: function closeFoodOrder() {
-      var _this8 = this;
+      var _this5 = this;
 
       fetch("".concat(_config_js__WEBPACK_IMPORTED_MODULE_9__["default"].API_ROUTE, "update"), {
         method: "post",
@@ -756,7 +719,7 @@ function (_Component) {
       }).then(function (res) {
         if (res.status != 200) return "Error";
 
-        _this8.getFoodOrderDescription();
+        _this5.getFoodOrderDescription();
 
         $("#modalCloseFoodOrder").modal("hide");
         $("#modalManageFoodOrder").modal("hide");
@@ -768,7 +731,7 @@ function (_Component) {
       return react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_7___default.a.Fragment, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 260
+          lineNumber: 243
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
@@ -780,7 +743,7 @@ function (_Component) {
         "aria-hidden": "true",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 261
+          lineNumber: 244
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
@@ -788,28 +751,28 @@ function (_Component) {
         role: "document",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 262
+          lineNumber: 245
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-content",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 263
+          lineNumber: 246
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-header",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 264
+          lineNumber: 247
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "col-6 col-md-3",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 265
+          lineNumber: 248
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("h5", {
@@ -817,14 +780,14 @@ function (_Component) {
         id: "exampleModalLongTitle",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 266
+          lineNumber: 249
         },
         __self: this
       }, "Mesa ", this.state.foodOrder.number, ", Orden: #", this.state.foodOrder.id_food_order)), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "col-5 col-md-3",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 270
+          lineNumber: 253
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("h5", {
@@ -832,13 +795,13 @@ function (_Component) {
         id: "exampleModalLongTitle",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 271
+          lineNumber: 254
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("b", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 272
+          lineNumber: 255
         },
         __self: this
       }, "Total: $", this.state.foodOrder.total))), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -848,35 +811,35 @@ function (_Component) {
         "aria-label": "Close",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 275
+          lineNumber: 258
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("span", {
         "aria-hidden": "true",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 276
+          lineNumber: 259
         },
         __self: this
       }, "\xD7"))), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-body",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 279
+          lineNumber: 262
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "row",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 280
+          lineNumber: 263
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "col-12 text-right",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 281
+          lineNumber: 264
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -885,26 +848,26 @@ function (_Component) {
         onClick: this.confirmCloseFoodOrder,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 282
+          lineNumber: 265
         },
         __self: this
       }, "Cobrar")), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("br", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 286
+          lineNumber: 269
         },
         __self: this
       }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("br", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 287
+          lineNumber: 270
         },
         __self: this
       }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "col-12 col-md-6",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 288
+          lineNumber: 271
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement(react_data_table_component__WEBPACK_IMPORTED_MODULE_8___default.a, {
@@ -916,28 +879,28 @@ function (_Component) {
         noDataComponent: "No se encontraron productos",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 289
+          lineNumber: 272
         },
         __self: this
       })), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "product-grid col-12 col-md-6",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 298
+          lineNumber: 281
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "row",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 299
+          lineNumber: 282
         },
         __self: this
       }, this.state.productGrid)))), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-footer",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 306
+          lineNumber: 289
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -946,7 +909,7 @@ function (_Component) {
         "data-dismiss": "modal",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 307
+          lineNumber: 290
         },
         __self: this
       }, "Cerrar"), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -955,7 +918,7 @@ function (_Component) {
         onClick: this.confirmCloseFoodOrder,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 308
+          lineNumber: 291
         },
         __self: this
       }, "Cobrar"))))), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
@@ -965,7 +928,7 @@ function (_Component) {
         role: "dialog",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 315
+          lineNumber: 298
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
@@ -973,28 +936,28 @@ function (_Component) {
         role: "document",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 316
+          lineNumber: 299
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-content",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 317
+          lineNumber: 300
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-header",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 318
+          lineNumber: 301
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("h5", {
         className: "modal-title",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 319
+          lineNumber: 302
         },
         __self: this
       }, "\xBFDesea cerrar la Orden: #", this.state.foodOrder.id_food_order, "?"), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -1004,42 +967,42 @@ function (_Component) {
         "aria-label": "Close",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 320
+          lineNumber: 303
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("span", {
         "aria-hidden": "true",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 321
+          lineNumber: 304
         },
         __self: this
       }, "\xD7"))), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-body",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 324
+          lineNumber: 307
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("h1", {
         className: "title-brackground-white text-center",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 325
+          lineNumber: 308
         },
         __self: this
       }, "Total de orden:"), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("h1", {
         className: "title-brackground-white text-center",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 326
+          lineNumber: 309
         },
         __self: this
       }, "$", this.state.foodOrder.total)), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "modal-footer",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 328
+          lineNumber: 311
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -1048,7 +1011,7 @@ function (_Component) {
         "data-dismiss": "modal",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 329
+          lineNumber: 312
         },
         __self: this
       }, "Cerrar"), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("button", {
@@ -1057,7 +1020,7 @@ function (_Component) {
         onClick: this.closeFoodOrder,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 330
+          lineNumber: 313
         },
         __self: this
       }, "Confirmar"))))));
@@ -1277,6 +1240,44 @@ function (_Component) {
 
 /***/ }),
 
+/***/ "./components/Notification.js":
+/*!************************************!*\
+  !*** ./components/Notification.js ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_notifications_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-notifications-component */ "react-notifications-component");
+/* harmony import */ var react_notifications_component__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_notifications_component__WEBPACK_IMPORTED_MODULE_1__);
+
+
+
+var showNotification = function showNotification(title, message) {
+  var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "success";
+  var duration = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 5000;
+  react_notifications_component__WEBPACK_IMPORTED_MODULE_1__["store"].addNotification({
+    title: title,
+    message: message,
+    type: type,
+    insert: "top",
+    container: "bottom-center",
+    animationIn: ["animated", "fadeIn"],
+    animationOut: ["animated", "fadeOut"],
+    dismiss: {
+      duration: duration,
+      onScreen: true
+    }
+  });
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (showNotification);
+
+/***/ }),
+
 /***/ "./components/TableGrid.js":
 /*!*********************************!*\
   !*** ./components/TableGrid.js ***!
@@ -1292,12 +1293,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_corejs2_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @babel/runtime-corejs2/helpers/esm/getPrototypeOf */ "./node_modules/@babel/runtime-corejs2/helpers/esm/getPrototypeOf.js");
 /* harmony import */ var _babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @babel/runtime-corejs2/helpers/esm/assertThisInitialized */ "./node_modules/@babel/runtime-corejs2/helpers/esm/assertThisInitialized.js");
 /* harmony import */ var _babel_runtime_corejs2_helpers_esm_inherits__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @babel/runtime-corejs2/helpers/esm/inherits */ "./node_modules/@babel/runtime-corejs2/helpers/esm/inherits.js");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../config.js */ "./config.js");
-/* harmony import */ var _ManageFoodOrder__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ManageFoodOrder */ "./components/ManageFoodOrder.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! axios */ "axios");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _babel_runtime_corejs2_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @babel/runtime-corejs2/helpers/esm/defineProperty */ "./node_modules/@babel/runtime-corejs2/helpers/esm/defineProperty.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _config_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../config.js */ "./config.js");
+/* harmony import */ var _ManageFoodOrder__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ManageFoodOrder */ "./components/ManageFoodOrder.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! axios */ "axios");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_10__);
+
 
 
 
@@ -1321,6 +1324,82 @@ function (_Component) {
     Object(_babel_runtime_corejs2_helpers_esm_classCallCheck__WEBPACK_IMPORTED_MODULE_0__["default"])(this, TableGrid);
 
     _this = Object(_babel_runtime_corejs2_helpers_esm_possibleConstructorReturn__WEBPACK_IMPORTED_MODULE_2__["default"])(this, Object(_babel_runtime_corejs2_helpers_esm_getPrototypeOf__WEBPACK_IMPORTED_MODULE_3__["default"])(TableGrid).call(this, props));
+
+    Object(_babel_runtime_corejs2_helpers_esm_defineProperty__WEBPACK_IMPORTED_MODULE_6__["default"])(Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4__["default"])(_this), "getTableGrid", function (event) {
+      var self = Object(_babel_runtime_corejs2_helpers_esm_assertThisInitialized__WEBPACK_IMPORTED_MODULE_4__["default"])(_this);
+
+      axios__WEBPACK_IMPORTED_MODULE_10___default.a.get("".concat(_config_js__WEBPACK_IMPORTED_MODULE_8__["default"].API_ROUTE, "diningTables")).then(function (res) {
+        // handle success
+        res = res.data;
+        if (!res.success) return res.message;
+        var tableGrid = res.data.map(function (item) {
+          return react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
+            key: "table_" + item.id,
+            className: "col-6 col-md-4 text-center container-grid",
+            onClick: self.triggerGetManageFoodOrder.bind(self, item.id),
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 35
+            },
+            __self: this
+          }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("img", {
+            src: _config_js__WEBPACK_IMPORTED_MODULE_8__["default"].IMAGE_ROUTE + "table.svg",
+            className: "img-table",
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 36
+            },
+            __self: this
+          }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("br", {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 37
+            },
+            __self: this
+          }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("span", {
+            className: "span-table-number",
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 38
+            },
+            __self: this
+          }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("b", {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 38
+            },
+            __self: this
+          }, item.number)), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("br", {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 39
+            },
+            __self: this
+          }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("span", {
+            className: "span-table-name",
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 40
+            },
+            __self: this
+          }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("b", {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 40
+            },
+            __self: this
+          }, "(", item.name, ")")));
+        });
+        self.setState({
+          tableGrid: tableGrid
+        });
+      }).catch(function (error) {
+        // handle error
+        console.log(error);
+      }).finally(function () {// always executed
+      });
+    });
+
     _this.state = {
       tableGrid: []
     };
@@ -1332,7 +1411,7 @@ function (_Component) {
   Object(_babel_runtime_corejs2_helpers_esm_createClass__WEBPACK_IMPORTED_MODULE_1__["default"])(TableGrid, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.getTableGrid();
+      this.getTableGrid(this);
     }
   }, {
     key: "triggerGetManageFoodOrder",
@@ -1341,80 +1420,39 @@ function (_Component) {
       this.refs.productGrid.getDiningTableOrder(idDiningTable);
     }
   }, {
-    key: "getTableGrid",
-    value: function getTableGrid(event) {
-      //event.preventDefault()
-      axios__WEBPACK_IMPORTED_MODULE_9___default.a.get("".concat(_config_js__WEBPACK_IMPORTED_MODULE_7__["default"].API_ROUTE, "diningTables")).then(function (response) {
-        // handle success
-        console.log(response);
-      }).catch(function (error) {
-        // handle error
-        console.log(error);
-      }).finally(function () {// always executed
-      }); // fetch(`${ENV.API_ROUTE}diningTables`, {
-      //     method: "post",
-      //     cors: "cors",
-      //     headers: {
-      //         'Accept': 'application/json',
-      //         'Content-Type': 'application/json'
-      //     },
-      //     body: JSON.stringify({
-      //         table: "dining_tables",
-      //         where: "status = 1"
-      //     })
-      // })
-      // .then(response => {return response.json()})
-      // .then(res => {
-      //     if (res.status != 200)
-      //         return "Error"
-      //         let tableGrid = res.data.map(item => {
-      //             return(
-      //                 <div key={"table_"+item.id_dining_table} className="col-6 col-md-4 text-center container-grid" onClick={this.triggerGetManageFoodOrder.bind(this, item.id_dining_table)}>
-      //                     <img src={ENV.IMAGE_ROUTE+"table.svg"} className="img-table"/>
-      //                     <br/>
-      //                     <span className="span-table-number"><b>{item.number}</b></span>
-      //                     <br/>
-      //                     <span className="span-table-name"><b>({item.name})</b></span>
-      //                 </div>
-      //             )
-      //         })
-      //         this.setState({tableGrid: tableGrid})
-      // })
-    }
-  }, {
     key: "render",
     value: function render() {
-      return react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_6___default.a.Fragment, {
+      return react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_7___default.a.Fragment, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 72
+          lineNumber: 58
         },
         __self: this
-      }, react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement("br", {
+      }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("br", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 73
+          lineNumber: 59
         },
         __self: this
-      }), react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement("div", {
+      }), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "container",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 74
+          lineNumber: 60
         },
         __self: this
-      }, react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement("div", {
+      }, react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
         className: "row",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 75
+          lineNumber: 61
         },
         __self: this
-      }, this.state.tableGrid)), react__WEBPACK_IMPORTED_MODULE_6___default.a.createElement(_ManageFoodOrder__WEBPACK_IMPORTED_MODULE_8__["default"], {
+      }, this.state.tableGrid)), react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement(_ManageFoodOrder__WEBPACK_IMPORTED_MODULE_9__["default"], {
         ref: "productGrid",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 79
+          lineNumber: 65
         },
         __self: this
       }));
@@ -1422,7 +1460,7 @@ function (_Component) {
   }]);
 
   return TableGrid;
-}(react__WEBPACK_IMPORTED_MODULE_6__["Component"]);
+}(react__WEBPACK_IMPORTED_MODULE_7__["Component"]);
 
 /* harmony default export */ __webpack_exports__["default"] = (TableGrid);
 
@@ -1656,6 +1694,36 @@ function _createClass(Constructor, protoProps, staticProps) {
   if (protoProps) _defineProperties(Constructor.prototype, protoProps);
   if (staticProps) _defineProperties(Constructor, staticProps);
   return Constructor;
+}
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime-corejs2/helpers/esm/defineProperty.js":
+/*!***************************************************************************!*\
+  !*** ./node_modules/@babel/runtime-corejs2/helpers/esm/defineProperty.js ***!
+  \***************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _defineProperty; });
+/* harmony import */ var _core_js_object_define_property__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../core-js/object/define-property */ "./node_modules/@babel/runtime-corejs2/core-js/object/define-property.js");
+/* harmony import */ var _core_js_object_define_property__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_core_js_object_define_property__WEBPACK_IMPORTED_MODULE_0__);
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    _core_js_object_define_property__WEBPACK_IMPORTED_MODULE_0___default()(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
 }
 
 /***/ }),
@@ -2210,6 +2278,17 @@ module.exports = __webpack_require__(/*! ./dist/client/link */ "./node_modules/n
 
 /***/ }),
 
+/***/ "./node_modules/react-notifications-component/dist/theme.css":
+/*!*******************************************************************!*\
+  !*** ./node_modules/react-notifications-component/dist/theme.css ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+
+
+/***/ }),
+
 /***/ "./pages/index.js":
 /*!************************!*\
   !*** ./pages/index.js ***!
@@ -2229,12 +2308,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_CustomHead__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../components/CustomHead */ "./components/CustomHead.js");
 /* harmony import */ var _components_NavBar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../components/NavBar */ "./components/NavBar.js");
 /* harmony import */ var _components_TableGrid__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../components/TableGrid */ "./components/TableGrid.js");
+/* harmony import */ var react_notifications_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-notifications-component */ "react-notifications-component");
+/* harmony import */ var react_notifications_component__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(react_notifications_component__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var react_notifications_component_dist_theme_css__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react-notifications-component/dist/theme.css */ "./node_modules/react-notifications-component/dist/theme.css");
+/* harmony import */ var react_notifications_component_dist_theme_css__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(react_notifications_component_dist_theme_css__WEBPACK_IMPORTED_MODULE_10__);
 
 
 
 
 
 var _jsxFileName = "/app/pages/index.js";
+
+
 
 
 
@@ -2257,26 +2342,32 @@ function (_Component) {
       return react__WEBPACK_IMPORTED_MODULE_5___default.a.createElement("div", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 9
+          lineNumber: 13
         },
         __self: this
       }, react__WEBPACK_IMPORTED_MODULE_5___default.a.createElement(_components_CustomHead__WEBPACK_IMPORTED_MODULE_6__["default"], {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 10
+          lineNumber: 14
         },
         __self: this
       }), react__WEBPACK_IMPORTED_MODULE_5___default.a.createElement(_components_NavBar__WEBPACK_IMPORTED_MODULE_7__["default"], {
         active: "index",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 11
+          lineNumber: 15
         },
         __self: this
       }), react__WEBPACK_IMPORTED_MODULE_5___default.a.createElement(_components_TableGrid__WEBPACK_IMPORTED_MODULE_8__["default"], {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 12
+          lineNumber: 16
+        },
+        __self: this
+      }), react__WEBPACK_IMPORTED_MODULE_5___default.a.createElement(react_notifications_component__WEBPACK_IMPORTED_MODULE_9___default.a, {
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 17
         },
         __self: this
       }));
@@ -2464,6 +2555,17 @@ module.exports = require("react");
 /***/ (function(module, exports) {
 
 module.exports = require("react-data-table-component");
+
+/***/ }),
+
+/***/ "react-notifications-component":
+/*!************************************************!*\
+  !*** external "react-notifications-component" ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("react-notifications-component");
 
 /***/ }),
 
